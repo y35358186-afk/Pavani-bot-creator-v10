@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366F1">
+    <title>Dashboard - Pavani Bot Creator V10</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icon-192.png">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon-small">🤖</div>
+                    <div class="logo-text">
+                        <span class="logo-name">Pavani V10</span>
+                        <span class="logo-subtitle">Bot Platform</span>
+                    </div>
+                </div>
+                
+                <div class="header-actions">
+                    <button class="btn btn-primary" onclick="openDeployModal()">
+                        <span>➕</span> Deploy Bot
+                    </button>
+                    <button class="btn btn-secondary" onclick="refreshDashboard()">
+                        <span>🔄</span>
+                    </button>
+                    <button class="btn btn-ghost" onclick="logout()">
+                        <span>🚪</span> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Stats Panel -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #6366F1, #4F46E5);">🤖</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="totalBots">0</div>
+                        <div class="stat-label">Total Bots</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #10B981, #059669);">▶️</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="runningBots">0</div>
+                        <div class="stat-label">Running</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #6B7280, #4B5563);">⏹️</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="stoppedBots">0</div>
+                        <div class="stat-label">Stopped</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #EF4444, #DC2626);">⚠️</div>
+                    <div class="stat-content">
+                        <div class="stat-value" id="errorBots">0</div>
+                        <div class="stat-label">Errors</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Bots Section -->
+    <section class="bots-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>🤖 Deployed Bots</h2>
+                <div class="section-actions">
+                    <select class="filter-select" id="statusFilter" onchange="filterBots()">
+                        <option value="all">All Status</option>
+                        <option value="running">Running</option>
+                        <option value="stopped">Stopped</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="bots-grid" id="botsGrid">
+                <!-- Bots will be loaded here -->
+            </div>
+            
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">🤖</div>
+                <h3>No Bots Deployed Yet</h3>
+                <p>Click "Deploy Bot" to get started with your first bot</p>
+                <button class="btn btn-primary btn-large" onclick="openDeployModal()">
+                    ➕ Deploy Your First Bot
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Deploy Modal -->
+    <div class="modal" id="deployModal">
+        <div class="modal-overlay" onclick="closeDeployModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🚀 Deploy New Bot</h3>
+                <button class="modal-close" onclick="closeDeployModal()">✕</button>
+            </div>
+            
+            <form id="deployForm" class="deploy-form">
+                <div class="form-group">
+                    <label>Bot Name</label>
+                    <input type="text" name="name" placeholder="my_telegram_bot" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Bot File (.py)</label>
+                    <div class="file-upload" id="botFileUpload">
+                        <input type="file" name="bot_file" id="botFile" accept=".py" required hidden>
+                        <div class="file-upload-placeholder" onclick="document.getElementById('botFile').click()">
+                            <span class="file-icon">📄</span>
+                            <span class="file-text">Click to select bot.py file</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Requirements File (.txt)</label>
+                    <div class="file-upload" id="reqFileUpload">
+                        <input type="file" name="req_file" id="reqFile" accept=".txt" required hidden>
+                        <div class="file-upload-placeholder" onclick="document.getElementById('reqFile').click()">
+                            <span class="file-icon">📦</span>
+                            <span class="file-text">Click to select requirements.txt</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeDeployModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span id="deployBtnText">🚀 Deploy Bot</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Bot Details Modal -->
+    <div class="modal" id="botModal">
+        <div class="modal-overlay" onclick="closeBotModal()"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="botModalTitle">Bot Console</h3>
+                <button class="modal-close" onclick="closeBotModal()">✕</button>
+            </div>
+            
+            <div class="bot-console-container">
+                <div class="console-header">
+                    <div class="console-status" id="consoleStatus">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Connected</span>
+                    </div>
+                    <div class="console-actions">
+                        <button class="btn-icon" onclick="clearConsole()" title="Clear">🗑️</button>
+                        <button class="btn-icon" onclick="downloadLogs()" title="Download">💾</button>
+                    </div>
+                </div>
+                <div class="telegram-console" id="telegramConsole">
+                    <div class="console-loading">
+                        <div class="spinner"></div>
+                        <span>Loading logs...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bot-metrics" id="botMetrics">
+                <!-- Metrics will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <script src="/static/app.js"></script>
+</body>
+</html>
